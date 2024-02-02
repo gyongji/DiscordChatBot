@@ -289,6 +289,9 @@ pyrightconfig.json
 # .gitignore 파일
 *.idea
 
+# Discord Bot Token
+TOKEN.txt
+
 # Default ignored files
 /shelf/
 /workspace.xml
