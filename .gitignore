@@ -292,7 +292,7 @@ pyrightconfig.json
 # Discord Bot Token
 TOKEN.txt
 
-# KAKAO Book API Key
+# KAKAO RestAPI Key
 KAKAO RestAPI Key.txt
 
 # Default ignored files
