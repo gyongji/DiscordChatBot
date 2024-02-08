@@ -290,10 +290,10 @@ pyrightconfig.json
 *.idea
 
 # Discord Bot Token
-TOKEN.txt
+Discord TOKEN.env
 
 # KAKAO Rest API Key
-KAKAO RestAPI Key.txt
+KAKAO RestAPI KEY.env
 
 # Default ignored files
 /shelf/

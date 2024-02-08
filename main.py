@@ -1,21 +1,19 @@
 import discord  # Discord 패키지 불러오기
 from discord.ext import commands
+from dotenv import load_dotenv
+import os
 import requests     # 통신모듈 (request) import
 import traceback    # 에러 메시지를 활용하기 위한 모듈 import
 import time         # sleep 사용하기 위한 모듈 import
 
+
+load_dotenv()
+
 # Discord Bot
-file = open('TOKEN.txt', 'r')    # 만들어 둔 Discord Bot의 TOKEN을 넣은 TOKEN.txt 파일 불러와서 읽기
-tk = file.read()
-file.close()
-# CHANNEL_ID = '<1202097779800035380>'  # 만들어 둔 Discord Server 내 Bot을 불러올 채팅 채널의 CHANNEL ID
-bot = commands.Bot(command_prefix='&', intents=discord.Intents.all())  # 어떤 Bot을 만들 것인지. 명령어 실행을 '&'으로 하겠다는 코드
-
-
+Discord_TOKEN = os.environ.get('Discord TOKEN.env')
+bot = commands.Bot(command_prefix='&', intents=discord.Intents.all())
 # Kakao Book API
-file = open('KAKAO RestAPI Key.txt', 'r')   # 발급받았던 KAKAO의 RestAPI Key를 넣은 KAKAO RestAPI Key.txt 파일 불러와서 읽기
-ky = file.read()
-file.close()
+KAKAO_RestAPI_KEY = os.environ.get('KAKAO RestAPI KEY.env')
 
 
 # Discord Bot 명령어 Error 시 출력
