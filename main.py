@@ -7,36 +7,36 @@ import traceback    # 에러 메시지를 활용하기 위한 모듈 import
 import time         # sleep 사용하기 위한 모듈 import
 
 
-load_dotenv()
+load_dotenv()    # .env load
 
 # Discord Bot
 Discord_TOKEN = os.environ.get('Discord TOKEN.env')
-bot = commands.Bot(command_prefix='&', intents=discord.Intents.all())
+BOT = commands.Bot(command_prefix='&', intents=discord.Intents.all())  # 명령어 실행 = '&'
 # Kakao Book API
 KAKAO_RestAPI_KEY = os.environ.get('KAKAO RestAPI KEY.env')
 
 
 # Discord Bot 명령어 Error 시 출력
-@bot.event
+@BOT.event
 async def on_command_error(ctx, error):
-    tb = traceback.format_exception(type(error), error, error.__traceback__)
-    err = [line.rstrip() for line in tb]
-    errstr = '\n'.join(err)
+    trace_back = traceback.format_exception(type(error), error, error.__traceback__)
+    error_line = [line.rstrip() for line in trace_back]
+    error_string = '\n'.join(error_line)
     if isinstance(error, commands.errors.CommandNotFound):
         await ctx.send("명령어를 잘못 입력하셨나요? 다시 확인해보세요.")
     else:
-        print(errstr)
+        print(error_string)
 
 
 # Discord Bot 기본 상태
-@bot.event
+@BOT.event
 async def on_ready():   # async : 비동기로 실행되는 함수 / on_ready : 봇이 시작될 때 실행되는 이벤트 함수
-    print(f'Login bot: {bot.user}')     # 봇이 실행될 때 터미널에 'Login bot: BookManager#1059' 출력
-    await bot.change_presence(activity=discord.Game(name="책 정리"))   # 봇이 실행되어 온라인이 되면 '책 정리 하는 중'이 상태메세지에 표시
+    print(f'Login bot: {BOT.user}')     # 봇이 실행될 때 터미널에 'Login bot: BookManager#1059' 출력
+    await BOT.change_presence(activity=discord.Game(name="책 정리"))   # 봇이 실행되어 온라인이 되면 '책 정리 하는 중'이 상태메세지에 표시
 
 
 # 인사 출력 (hello)
-@bot.command()
+@BOT.command()
 async def hello(message):   # def hello : 대화창에 '&hello'를 입력했을 경우 실행되는 함수
     embed = discord.Embed(title=f":woman_raising_hand:  Hello world!", description=f"반가워요. BookManager입니다.",
                           color=discord.Color.green())
@@ -45,7 +45,7 @@ async def hello(message):   # def hello : 대화창에 '&hello'를 입력했을 
     await message.send(embed=embed)
 
 # 사용법 출력 (aid)
-@bot.command()
+@BOT.command()
 async def aid(message):
     embed = discord.Embed(title=f":clipboard:  Hello world!", description=f"절 사용하는 방법을 알려드릴게요.",
                           color=discord.Color.green())
@@ -58,7 +58,7 @@ async def aid(message):
 
 
 # 이스터에그
-@bot.event
+@BOT.event
 async def on_message(message):
     message_content = message.content
     if message_content == "야":
@@ -70,39 +70,40 @@ async def on_message(message):
         time.sleep(3)
         await message.channel.send("도서관")
         await message.channel.send("파항항 ꉂꉂ(ᵔᗜᵔ*) 파항항 ꉂꉂ(ᵔᗜᵔ*) 파항항 ꉂꉂ(ᵔᗜᵔ*) 파항항 ꉂꉂ(ᵔᗜᵔ*)")
-    await bot.process_commands(message)
+    await BOT.process_commands(message)
 
 
 # 제목 검색
-@bot.command()
+@BOT.command()
 async def t(ctx, *args):  # 제목(title)를 검색하면 실행되는 함수
     try:
-        ti = " ".join(args)  # 띄어쓰기가 포함된 처리
-        url = "https://dapi.kakao.com/v3/search/book?target=" + ti  # KAKAO 책 검색 GET 메소드의 URL
-        apikey = ky  # KAKAO RestAPI Key 넣어둔 변수(ky) 호출해서 apikey에 넣기
+        title_spacing = " ".join(args)  # 띄어쓰기가 포함된 처리
+        title_url = "https://dapi.kakao.com/v3/search/book?target=" + title_spacing  # KAKAO 책 검색 GET 메소드의 URL
+        apikey = KAKAO_RestAPI_KEY  # KAKAO RestAPI Key 넣어둔 변수(ky) 호출해서 apikey에 넣기
         headers = {
             "Authorization": 'KakaoAK {}'.format(apikey)
         }
         bookdata = {
-            "query": ti,
+            "query": title_spacing,
             "size": 5,
             "target": "title"
         }
-        response = requests.get(url, headers=headers, data=bookdata)
-        total_count = response.json()['meta']['total_count']
+        response = requests.get(title_url, headers=headers, data=bookdata)
+        total_count_meta = response.json()['meta']['total_count']
 
-        embed = discord.Embed(title=f":closed_book:  제목({ti})으로 검색하셨군요?", description=f"{ti} 도서 리스트\n검색된 도서 {total_count}개",
+        embed = discord.Embed(title=f":closed_book:  제목({title_spacing})으로 검색하셨군요?",
+                              description=f"{title_spacing} 도서 리스트\n검색된 도서 {total_count_meta}개",
                               color=discord.Color.red())
 
         for i in range(5):
-            title = response.json()['documents'][i]['title']
-            authors = response.json()['documents'][i]['authors']
+            title_documents = response.json()['documents'][i]['title']
+            authors_documents = response.json()['documents'][i]['authors']
 
             # 작가 리스트 대괄호 및 따옴표 없이 출력하기
-            author = str(authors)[1:-1]
-            author = author.replace("'", "")
+            authors_no_special_characters = str(authors_documents)[1:-1]
+            authors_no_special_characters = authors_no_special_characters.replace("'", "")
 
-            embed.add_field(name=f'{i+1}. {title} - {author}', value='', inline=False)
+            embed.add_field(name=f'{i+1}. {title_documents} - {authors_no_special_characters}', value='', inline=False)
 
         embed.add_field(name=f':mag:', value=f'자세한 정보를 알고 싶다면?\n\'&b 도서명_작가명\' 으로 검색해 보세요', inline=False)
         embed.set_footer(text='BookManager')
@@ -113,35 +114,36 @@ async def t(ctx, *args):  # 제목(title)를 검색하면 실행되는 함수
 
 
 # 저자 검색
-@bot.command()
+@BOT.command()
 async def a(ctx, *args):  # 저자(author)를 검색하면 실행되는 함수
     try:
-        au = " ".join(args)  # 띄어쓰기가 포함된 처리
-        url = "https://dapi.kakao.com/v3/search/book?target=" + au  # KAKAO 책 검색 GET 메소드의 URL
-        apikey = ky  # KAKAO RestAPI Key 넣어둔 변수(ky) 호출해서 apikey에 넣기
+        authors_spacing = " ".join(args)  # 띄어쓰기가 포함된 처리
+        authors_url = "https://dapi.kakao.com/v3/search/book?target=" + authors_spacing  # KAKAO 책 검색 GET 메소드의 URL
+        apikey = KAKAO_RestAPI_KEY  # KAKAO RestAPI Key 넣어둔 변수(ky) 호출해서 apikey에 넣기
         headers = {
             "Authorization": 'KakaoAK {}'.format(apikey)
         }
         bookdata = {
-            "query": au,
+            "query": authors_spacing,
             "size": 5,
             "target": "person"
         }
-        response = requests.get(url, headers=headers, data=bookdata)
-        total_count = response.json()['meta']['total_count']
+        response = requests.get(authors_url, headers=headers, data=bookdata)
+        total_count_meta = response.json()['meta']['total_count']
 
-        embed = discord.Embed(title=f":blue_book:  저자({au})로 검색하셨군요?", description=f"{au} 작가의 도서 리스트\n검색된 도서 {total_count}개",
+        embed = discord.Embed(title=f":blue_book:  저자({authors_spacing})로 검색하셨군요?",
+                              description=f"{authors_spacing} 작가의 도서 리스트\n검색된 도서 {total_count_meta}개",
                               color=discord.Color.blue())
 
         for i in range(5):
-            title = response.json()['documents'][i]['title']
-            authors = response.json()['documents'][i]['authors']
+            title_documents = response.json()['documents'][i]['title']
+            authors_documents = response.json()['documents'][i]['authors']
 
             # 작가 리스트 대괄호 및 따옴표 없이 출력하기
-            author = str(authors)[1:-1]
-            author = author.replace("'", "")
+            authors_no_special_characters = str(authors_documents)[1:-1]
+            authors_no_special_characters = authors_no_special_characters.replace("'", "")
 
-            embed.add_field(name=f'{i+1}. {author} - {title}', value='', inline=False)
+            embed.add_field(name=f'{i+1}. {authors_no_special_characters} - {title_documents}', value='', inline=False)
 
         embed.add_field(name=f':mag:', value=f'자세한 정보를 알고 싶다면?\n\'&b 도서명_작가명\' 으로 검색해 보세요', inline=False)
         embed.set_footer(text='BookManager')
@@ -152,47 +154,47 @@ async def a(ctx, *args):  # 저자(author)를 검색하면 실행되는 함수
 
 
 # 제목_저자 검색
-@bot.command()
+@BOT.command()
 async def b(ctx, *args):  # 책 제목을 검색하면 실행되는 함수
     try:
-        book = " ".join(args)  # 띄어쓰기가 포함된 처리
+        book_spacing = " ".join(args)  # 띄어쓰기가 포함된 처리
 
         # book 값에서 언더바(_)를 기준으로 제목/저자 구분하기
-        index = book.split('_')
-        book_title = index[0]   # 제목
-        book_author = index[1]  # 저자
+        search_book = book_spacing.split('_')
+        book_title = search_book[0]   # 제목
+        book_authors = search_book[1]  # 저자
 
-        url = "https://dapi.kakao.com/v3/search/book?target=" + book_title + " " + book_author  # KAKAO 책 검색 GET 메소드의 URL
-        apikey = ky  # KAKAO RestAPI Key 넣어둔 변수(ky) 호출해서 apikey에 넣기
+        book_url = "https://dapi.kakao.com/v3/search/book?target=" + book_title + " " + book_authors  # KAKAO 책 검색 GET 메소드의 URL
+        apikey = KAKAO_RestAPI_KEY  # KAKAO RestAPI Key 넣어둔 변수(ky) 호출해서 apikey에 넣기
         headers = {
             "Authorization": 'KakaoAK {}'.format(apikey)
         }
         bookdata = {
-                "query": {book_title, book_author},
+                "query": {book_title, book_authors},
                 "target": {"title", "authors"}
         }
-        response = requests.get(url, headers=headers, data=bookdata)
-        total_count = response.json()['meta']['total_count']
-        urll = response.json()['documents'][0]['url']
+        response = requests.get(book_url, headers=headers, data=bookdata)
+        total_count_meta = response.json()['meta']['total_count']
+        url_documents = response.json()['documents'][0]['url']
 
-        embed = discord.Embed(title=f":green_book:  저자 \'{book_author}\'의 도서 \'{book_title}\'(을)를 검색하셨군요?", url=urll,
-                              description=f"도서 검색 봇 BM이 도서 정보를 알려드립니다!\n검색된 도서 {total_count}개",
+        embed = discord.Embed(title=f":green_book:  저자 \'{book_authors}\'의 도서 \'{book_title}\'(을)를 검색하셨군요?", url=url_documents,
+                              description=f"도서 검색 봇 BM이 도서 정보를 알려드립니다!\n검색된 도서 {total_count_meta}개",
                               color=discord.Color.green())
-        title = response.json()['documents'][0]['title']
-        thumbnail = response.json()['documents'][0]['thumbnail']
-        authors = response.json()['documents'][0]['authors']
-        publisher = response.json()['documents'][0]['publisher']
-        contents = response.json()['documents'][0]['contents']
+        title_documents = response.json()['documents'][0]['title']
+        thumbnail_documents = response.json()['documents'][0]['thumbnail']
+        authors_documents = response.json()['documents'][0]['authors']
+        publisher_documents = response.json()['documents'][0]['publisher']
+        contents_documents = response.json()['documents'][0]['contents']
 
         # 작가 리스트 대괄호 및 따옴표 없이 출력하기
-        author = str(authors)[1:-1]
-        author = author.replace("'", "")
+        authors_no_special_characters = str(authors_documents)[1:-1]
+        authors_no_special_characters = authors_no_special_characters.replace("'", "")
 
-        embed.add_field(name=f'제목', value=title, inline=False)
-        embed.add_field(name=f"저자", value=author, inline=True)
-        embed.add_field(name=f"출판사", value=publisher, inline=True)
-        embed.add_field(name=f'도서 소개', value=contents + "...", inline=False)
-        embed.set_image(url=thumbnail)
+        embed.add_field(name=f'제목', value=title_documents, inline=False)
+        embed.add_field(name=f"저자", value=authors_no_special_characters, inline=True)
+        embed.add_field(name=f"출판사", value=publisher_documents, inline=True)
+        embed.add_field(name=f'도서 소개', value=contents_documents + "...", inline=False)
+        embed.set_image(url=thumbnail_documents)
         embed.set_footer(text='BookManager')
 
         embed.add_field(name=f':mag:', value=f'원하던 결과가 나오지 않았나요?\n 조금 더 자세히 검색해 보세요!', inline=False)
@@ -202,4 +204,4 @@ async def b(ctx, *args):  # 책 제목을 검색하면 실행되는 함수
         await ctx.send("검색 결과가 없습니다. \n혹시 오타가 났나요? 다시 검색해 보세요!")
 
 
-bot.run(tk)     # 만들어 둔 Discord Bot의 TOKEN 입력
+BOT.run(Discord_TOKEN)     # 만들어 둔 Discord Bot의 TOKEN 입력
