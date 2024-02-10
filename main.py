@@ -8,12 +8,12 @@ import time         # sleep 사용하기 위한 모듈 import
 
 
 # 환경 변수 #
-dotenv_Discord_TOKEN = dotenv.load_dotenv('Discord TOKEN.env')
-dotenv_KAKAO_RestAPI_KEY = dotenv.load_dotenv('KAKAO RestAPI KEY.env')
 # Discord Bot
+dotenv_Discord_TOKEN = dotenv.load_dotenv('Discord TOKEN.env')
 Discord_TOKEN = os.environ.get('TOKEN')
 BOT = commands.Bot(command_prefix='&', intents=discord.Intents.all())
 # Kakao Book API
+dotenv_KAKAO_RestAPI_KEY = dotenv.load_dotenv('KAKAO RestAPI KEY.env')
 KAKAO_RestAPI_KEY = os.environ.get('API_KEY')
 
 
@@ -107,13 +107,12 @@ async def t(ctx, *args):  # 제목(title)를 검색하면 실행되는 함수
                               description=f"{title_spacing} 도서 리스트\n검색된 도서 {total_count_meta}개",
                               color=discord.Color.red())
 
-        for i in range(5):
+        for i in range(len(documents)):
             title_documents = documents[i]['title']
             authors_documents = documents[i]['authors']
 
             # 작가 리스트 대괄호 및 따옴표 없이 출력하기
-            authors_no_special_characters = str(authors_documents)[1:-1]
-            authors_no_special_characters = authors_no_special_characters.replace("'", "")
+            authors_no_special_characters = ", ".join(authors_documents)
 
             embed.add_field(name=f'{i+1}. {title_documents} - {authors_no_special_characters}', value='', inline=False)
 
@@ -134,13 +133,12 @@ async def a(ctx, *args):  # 저자(author)를 검색하면 실행되는 함수
                               description=f"{authors_spacing} 작가의 도서 리스트\n검색된 도서 {total_count_meta}개",
                               color=discord.Color.blue())
 
-        for i in range(5):
+        for i in range(len(documents)):
             title_documents = documents[i]['title']
             authors_documents = documents[i]['authors']
 
             # 작가 리스트 대괄호 및 따옴표 없이 출력하기
-            authors_no_special_characters = str(authors_documents)[1:-1]
-            authors_no_special_characters = authors_no_special_characters.replace("'", "")
+            authors_no_special_characters = ", ".join(authors_documents)
 
             embed.add_field(name=f'{i+1}. {authors_no_special_characters} - {title_documents}', value='', inline=False)
 
@@ -158,6 +156,7 @@ async def b(ctx, *args):  # 책 제목을 검색하면 실행되는 함수
 
         # book 값에서 언더바(_)를 기준으로 제목/저자 구분하기
         search_book = book_spacing.split('_')
+
         book_title = search_book[0]   # 제목
         book_authors = search_book[1]  # 저자
 
@@ -175,8 +174,7 @@ async def b(ctx, *args):  # 책 제목을 검색하면 실행되는 함수
         contents_documents = documents[0]['contents']
 
         # 작가 리스트 대괄호 및 따옴표 없이 출력하기
-        authors_no_special_characters = str(authors_documents)[1:-1]
-        authors_no_special_characters = authors_no_special_characters.replace("'", "")
+        authors_no_special_characters = ", ".join(authors_documents)
 
         embed.add_field(name=f'제목', value=title_documents, inline=False)
         embed.add_field(name=f"저자", value=authors_no_special_characters, inline=True)
