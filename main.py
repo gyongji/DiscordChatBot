@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-import dotenv
+from dotenv import load_dotenv
 import os
 import requests
 import traceback
@@ -8,19 +8,16 @@ import time
 
 
 # 환경 변수 #
-# Discord Bot
-dotenv_Discord_TOKEN = dotenv.load_dotenv('Discord TOKEN.env')
-Discord_TOKEN = os.environ.get('TOKEN')
+load_dotenv()
+DISCORD_TOKEN = os.environ.get('DISCORD_BOT_TOKEN')
 BOT = commands.Bot(command_prefix='&', intents=discord.Intents.all())
-# Kakao Book API
-dotenv_KAKAO_RestAPI_KEY = dotenv.load_dotenv('KAKAO RestAPI KEY.env')
-KAKAO_RestAPI_KEY = os.environ.get('API_KEY')
+KAKAO_RESTAPI_KEY = os.environ.get('KAKAO_API_KEY')
 
 
 # 상수 및 함수 선언 #
 KAKAO_API_BOOK_URL = "https://dapi.kakao.com/v3/search/book"
 REQUEST_HEADERS = {
-    "Authorization": 'KakaoAK {}'.format(KAKAO_RestAPI_KEY)
+    "Authorization": 'KakaoAK {}'.format(KAKAO_RESTAPI_KEY)
 }
 LIST_SIZE = 5
 BOT_NAME = "BookManager"
@@ -185,4 +182,4 @@ async def b(ctx, *args):
 
 
 # BOT 실행 #
-BOT.run(Discord_TOKEN)
+BOT.run(DISCORD_TOKEN)

@@ -289,11 +289,8 @@ pyrightconfig.json
 # .gitignore 파일
 *.idea
 
-# Discord Bot Token
-Discord TOKEN.env
-
-# KAKAO Rest API Key
-KAKAO RestAPI KEY.env
+# environment variable
+.env
 
 # Default ignored files
 /shelf/
