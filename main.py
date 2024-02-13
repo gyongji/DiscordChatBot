@@ -25,7 +25,7 @@ ERROR_MASSAGE = "검색 결과가 없습니다.\n혹시 오타가 났나요? 다
 MAG_MASSAGE = "원하던 결과가 나오지 않았나요?\n 조금 더 자세히 검색해 보세요!"
 
 # KAKAO API Request
-def request(query, target):
+def getBookinfo(query, target):
     request_query_parameter = {"query": query, "size": LIST_SIZE, "target": target}
     response = requests.get(KAKAO_API_BOOK_URL, headers=REQUEST_HEADERS, data=request_query_parameter)
     return response.json()['documents'], response.json()['meta']['total_count']
@@ -98,7 +98,7 @@ async def on_message(message):
 async def t(ctx, *args):
     try:
         title_spacing = " ".join(args)
-        documents, total_count_meta = request(title_spacing, "title")
+        documents, total_count_meta = getBookinfo(title_spacing, "title")
 
         embed = discord.Embed(title=f":closed_book:  제목({title_spacing})으로 검색하셨군요?",
                               description=f"{title_spacing} 도서 리스트\n검색된 도서 {total_count_meta}개",
@@ -123,7 +123,7 @@ async def t(ctx, *args):
 async def a(ctx, *args):
     try:
         authors_spacing = " ".join(args)
-        documents, total_count_meta = request(authors_spacing, "person")
+        documents, total_count_meta = getBookinfo(authors_spacing, "person")
 
         embed = discord.Embed(title=f":blue_book:  저자({authors_spacing})로 검색하셨군요?",
                               description=f"{authors_spacing} 작가의 도서 리스트\n검색된 도서 {total_count_meta}개",
@@ -153,7 +153,7 @@ async def b(ctx, *args):
         book_title = search_book[0]
         book_authors = search_book[1]
 
-        documents, total_count_meta = request({book_title, book_authors}, {"title", "person"})
+        documents, total_count_meta = getBookinfo({book_title, book_authors}, {"title", "person"})
         url_documents = documents[0]['url']
 
         embed = discord.Embed(title=f":green_book:  저자 \'{book_authors}\'의 도서 \'{book_title}\'(을)를 검색하셨군요?",
